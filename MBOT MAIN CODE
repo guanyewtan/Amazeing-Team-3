@@ -1,1 +1,66 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <SoftwareSerial.h>
+#define TIMEOUT 30000
+#define WAITING_TIME 1000
+#define ULTRASONIC 10
+#include <MeMCore.h>
+
+MeDCMotor motor_9(9);
+MeDCMotor motor_10(10);    
+
+void move(int direction, int speed)
+{
+      int leftSpeed = 0;
+      int rightSpeed = 0;
+      if(direction == 1){
+          leftSpeed = speed;
+          rightSpeed = speed;
+      }else if(direction == 2){
+          leftSpeed = -speed;
+          rightSpeed = -speed;
+      }else if(direction == 3){
+          leftSpeed = -speed;
+          rightSpeed = speed;
+      }else if(direction == 4){
+          leftSpeed = speed;
+          rightSpeed = -speed;
+      }
+      motor_9.run((9)==M1?-(leftSpeed):(leftSpeed));
+      motor_10.run((10)==M1?-(rightSpeed):(rightSpeed));
+}
+double angle_rad = PI/180.0;
+double angle_deg = 180.0/PI;     
+       
+
+void setup() {
+  // Set up serial communication
+  Serial.begin(9600);
+}
+
+void loop() {
+  // The following code runs repeatedly:
+  pinMode(ULTRASONIC, OUTPUT);
+
+  digitalWrite(ULTRASONIC, LOW);
+  delayMicroseconds(2);
+  digitalWrite(ULTRASONIC, HIGH);
+  delayMicroseconds(2);
+  digitalWrite(ULTRASONIC, LOW);
+
+  pinMode(ULTRASONIC, INPUT);
+
+  long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
+  long distance = (duration * 343)/(20000);
+  Serial.println(distance);
+
+  if (distance < 10)
+  {
+    move(3,255);
+    delay(500);
+  }
+  else {
+    move(1,255);
+  }
+}
 
