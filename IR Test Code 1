@@ -1,0 +1,22 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <SoftwareSerial.h>
+
+#include <MeMCore.h> 
+
+const int irpin = 12;
+
+void setup() 
+{
+  // Set up serial communication
+  Serial.begin(9600);
+  Serial.println("Start:");
+  pinMode(irpin, INPUT);
+}
+
+void loop() 
+{
+ int x = analogRead(irpin);
+ Serial.println(x);
+ delay(100);
+}
