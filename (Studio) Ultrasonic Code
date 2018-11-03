@@ -1,7 +1,7 @@
 #define TIMEOUT 30000
 #define WAITING_TIME 1000
-
 #define ULTRASONIC 12
+#include <MeMCore.h>
 // If you are using PORT 1 of the mCore, the ultrasonic sensor is connected to digital pin 12
 // If you are using PORT 2 of the mCore, the ultrasonic sensor is connected to digital pin 10
 
@@ -9,7 +9,7 @@ void setup() {
   // Set up serial communication
   Serial.begin(9600);
 }
-
+MeLineFollower linefollower_3(3);
 void loop() {
   // The following code runs repeatedly:
   pinMode(ULTRASONIC, OUTPUT);
@@ -23,10 +23,23 @@ void loop() {
   pinMode(ULTRASONIC, INPUT);
 
   long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
+  long distance = (duration * 343)/20000);
+  Serial.print(distance);
+  
+  if (distance < 10)//use mbot ultrasound to detect a wall and slow down
+  {
+    move(1,100);
+  }
+    
+  if ((linefollower_3.readSensors())==( 1 ))//check for blackline
+  {
+    move(1,0);
+    //delay(103571);
+  }
+  else {
+    move(1,255);
+  }
 
-  Serial.print("Duration: ");
-  Serial.print(duration);
-  Serial.println(" microseconds");
 
   delay(WAITING_TIME);
 }
