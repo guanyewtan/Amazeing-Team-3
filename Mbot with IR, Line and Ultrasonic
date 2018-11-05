@@ -1,0 +1,96 @@
+#include "MeMCore.h"
+#define PORT_1 4
+#include <Arduino.h>
+#include <Wire.h>
+#include <SoftwareSerial.h>
+#define TIMEOUT 30000
+#define WAITING_TIME 1000
+#define ULTRASONIC 10
+#include <MeMCore.h>
+#define power 11
+
+MeDCMotor motor_9(9);
+MeDCMotor motor_10(10);    
+
+void move(int direction, int speed)
+{
+      int leftSpeed = 0;
+      int rightSpeed = 0;
+      if(direction == 1){
+          leftSpeed = speed;
+          rightSpeed = speed;
+      }else if(direction == 2){
+          leftSpeed = -speed;
+          rightSpeed = -speed;
+      }else if(direction == 3){
+          leftSpeed = -speed;
+          rightSpeed = speed;
+      }else if(direction == 4){
+          leftSpeed = speed;
+          rightSpeed = -speed;
+      }
+      motor_9.run((9)==M1?-(leftSpeed):(leftSpeed));
+      motor_10.run((10)==M1?-(rightSpeed):(rightSpeed));
+}
+
+int left_sensor; // within s1
+int right_sensor; // on s2
+MePort MePort(PORT_1);
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(power, INPUT);
+}
+
+MeLineFollower linefollower_3(1);
+
+void loop() {
+  pinMode(ULTRASONIC, OUTPUT);
+
+  digitalWrite(ULTRASONIC, LOW);
+  delayMicroseconds(2);
+  digitalWrite(ULTRASONIC, HIGH);
+  delayMicroseconds(2);
+  digitalWrite(ULTRASONIC, LOW);
+
+  pinMode(ULTRASONIC, INPUT);
+
+  long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
+  long distance = ((duration * 343)/20000);
+ // Serial.println(distance);
+  
+  if (distance < 10)//use mbot ultrasound to detect a wall and slow down
+  {
+    move(1,100);
+  }
+    
+  if ((linefollower_3.readSensors())==( 1 ))//check for blackline
+  {
+    move(1,0);
+    //delay(103571);
+  }
+  else {
+  move(1,255);
+  digitalWrite(power, HIGH);
+  left_sensor = MePort.aRead1();
+  Serial.print(left_sensor);
+  Serial.print(" ");
+  Serial.println(right_sensor);
+  right_sensor = MePort.aRead2();
+  if (left_sensor <= 700) {
+  move(4, 255);
+  delay(5);
+  move(1, 255);
+  }
+  if (right_sensor <= 700) {
+   move(3, 255);
+   delay(5);
+  move(1, 255);
+  }
+  }
+
+
+  //delay(WAITING_TIME);
+}
+  
+  
