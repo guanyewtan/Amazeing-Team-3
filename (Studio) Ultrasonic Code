@@ -9,7 +9,7 @@ void setup() {
   // Set up serial communication
   Serial.begin(9600);
 }
-MeLineFollower linefollower_3(3);
+MeLineFollower linefollower_3(1);
 void loop() {
   // The following code runs repeatedly:
   pinMode(ULTRASONIC, OUTPUT);
