@@ -42,7 +42,7 @@ void setup() {
   pinMode(power, INPUT);
 }
 
-MeLineFollower linefollower_3(1);
+MeLineFollower linefollower_1(1);
 
 void loop() {
   pinMode(ULTRASONIC, OUTPUT);
@@ -57,40 +57,38 @@ void loop() {
 
   long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
   long distance = ((duration * 343)/20000);
- // Serial.println(distance);
+  Serial.println(distance);
   
-  if (distance < 10)//use mbot ultrasound to detect a wall and slow down
+  /*if (distance < 6)//use mbot ultrasound to detect a wall and slow down
   {
     move(1,100);
-  }
-    
-  if ((linefollower_3.readSensors())==( 1 ))//check for blackline
+  }*/
+ if ((linefollower_1.readSensors())!=( 3 ))//check for blackline
   {
     move(1,0);
     //delay(103571);
   }
   else {
-  move(1,255);
+ // move(1,255);
   digitalWrite(power, HIGH);
   left_sensor = MePort.aRead1();
   Serial.print(left_sensor);
   Serial.print(" ");
   Serial.println(right_sensor);
   right_sensor = MePort.aRead2();
-  if (left_sensor <= 700) {
+  
+  if (left_sensor <= 780) {
   move(4, 255);
   delay(5);
   move(1, 255);
   }
-  if (right_sensor <= 700) {
+  if (right_sensor <= 850) {
    move(3, 255);
    delay(5);
-  move(1, 255);
+   move(1, 255);
   }
+ 
+
   }
-
-
   //delay(WAITING_TIME);
 }
-  
-  
