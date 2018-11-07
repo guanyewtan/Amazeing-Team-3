@@ -1,0 +1,44 @@
+
+
+#include "MeMCore.h"
+#define PORT_1 4
+#include <Arduino.h>
+#include <Wire.h>
+#include <SoftwareSerial.h>
+#define TIMEOUT 30000
+#define WAITING_TIME 1000
+#define ULTRASONIC 10
+#include <MeMCore.h>
+#define power 11
+
+MePort MicPort(PORT_4);
+
+
+void setup()
+{
+  Serial.begin(9600);
+}
+
+void loop() {
+
+digitalWrite(power, HIGH);
+//voltage from LOW freq
+micLow = MicPort.aRead2();
+Serial.println(micLow);
+
+//voltage from HIGH freq
+micHigh = MicPort.aRead1();
+Serial.println(micHigh);
+
+  if ( micLow > micHigh ) {
+    //left turn 
+    move(3, 255);
+    delay(5)
+  } else {
+     //right turn
+     move(4, 255);
+     delay(5)
+    }
+}
+
+
