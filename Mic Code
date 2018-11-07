@@ -23,11 +23,11 @@ void loop() {
 
 digitalWrite(power, HIGH);
 //voltage from LOW freq
-micLow = MicPort.aRead2();
+micLow = MicPort.aRead3();
 Serial.println(micLow);
 
 //voltage from HIGH freq
-micHigh = MicPort.aRead1();
+micHigh = MicPort.aRead2();
 Serial.println(micHigh);
 
   if ( micLow > micHigh ) {
