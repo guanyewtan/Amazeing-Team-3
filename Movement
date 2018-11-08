@@ -1,12 +1,11 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <SoftwareSerial.h>
-#include <MeDCMotor.h>
-#include <MePort.h>
+#include <MeMCore.h>
 #define TIMEOUT 30000
 #define WAITING_TIME 1000
 
-
+ MePort MePort(PORT_1);
 
 MeDCMotor motor_9(9);
 MeDCMotor motor_10(10);    
@@ -39,4 +38,28 @@ void setup() {
 
 void loop(){
   move(3, 200);
+  delay(350);
+  move(1,0);
+  delay(500);
+  move(1,255);
+  delay(1000);
+  move(1,0);
+  delay(500);
+  move(4,200);
+  delay(350);
+  move(1,0);
+  delay(500);
+  move(1,255);
+  delay(1000);
+  move(1,0);
+  delay(1000);
+  move(3, 200);
+  delay(650);
+  move(1,0);
+  delay(500);
+  move(1,255);
+  delay(1000);
+  move(1,0);
+  delay(500);
+  
 }
