@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <SoftwareSerial.h>
 #include <MeDCMotor.h>
+#include <MePort.h>
 #define TIMEOUT 30000
 #define WAITING_TIME 1000
 
