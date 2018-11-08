@@ -1,7 +1,6 @@
 
 
-#include "MeMCore.h"
-#define PORT_1 4
+#define PORT 3
 #include <Arduino.h>
 #include <Wire.h>
 #include <SoftwareSerial.h>
@@ -11,7 +10,9 @@
 #include <MeMCore.h>
 #define power 11
 
-MePort MicPort(PORT_4);
+MePort MicPort(PORT);
+float micLow = 0;
+float micHigh = 0;
 
 
 void setup()
@@ -23,30 +24,31 @@ void loop() {
 
 digitalWrite(power, HIGH);
 //voltage from LOW freq
-micLow = MicPort.aRead3();
+micLow = MicPort.aRead2();
 Serial.println(micLow);
 
 //voltage from HIGH freq
-micHigh = MicPort.aRead2();
+micHigh = MicPort.aRead1();
 Serial.println(micHigh);
 
   if ( micLow > micHigh ) {
     //left turn 
-    move(3, 255);
-    delay(5)
+    //move(3, 255);
+    Serial.println("300hz louder");
+    delay(1000);
   } 
   
   if ( micLow < micHigh) {
      //right turn
-     move(4, 255);
-     delay(5)
+     //move(4, 255);
+     Serial.println("3000hz louder");
+     delay(1000);
     }
     
   if (micLow == micHigh) {
-  move(4,255);
+  Serial.println("they are equal");
+  //move(4,255);
   delay(500);
-  move(4, 255);
+  //move(1, 255);
 }
 }
-
-
