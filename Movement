@@ -1,0 +1,41 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <SoftwareSerial.h>
+#include <MeDCMotor.h>
+#define TIMEOUT 30000
+#define WAITING_TIME 1000
+
+
+
+MeDCMotor motor_9(9);
+MeDCMotor motor_10(10);    
+
+void move(int direction, int speed)
+{
+      int leftSpeed = 0;
+      int rightSpeed = 0;
+      if(direction == 1){
+          leftSpeed = speed;
+          rightSpeed = speed;
+      }else if(direction == 2){
+          leftSpeed = -speed;
+          rightSpeed = -speed;
+      }else if(direction == 3){
+          leftSpeed = -speed;
+          rightSpeed = speed;
+      }else if(direction == 4){
+          leftSpeed = speed;
+          rightSpeed = -speed;
+      }
+      motor_9.run((9)==M1?-(leftSpeed):(leftSpeed));
+      motor_10.run((10)==M1?-(rightSpeed):(rightSpeed));
+}
+
+void setup() {
+  // Set up serial communication
+  Serial.begin(9600);
+}
+
+void loop(){
+  move(3, 200);
+}
