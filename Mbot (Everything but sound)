@@ -196,9 +196,6 @@ void loop() {
   {
       move(3, 255);
       delay(275);
-      move(1,255);
-      
-    
       
   } else if (colourArray[0] <= 110 && colourArray[1] >= 130 && colourArray[2] <= 100)// green
   {
@@ -207,7 +204,7 @@ void loop() {
   } else if (colourArray[0] >= 220 && colourArray[1] >= 220 && colourArray[2] >= 220)//white
   {
     move(3, 255);
-    delay(550);//180 degree turn
+    delay(525);//180 degree turn
   } else if (colourArray[0] <= 100 && colourArray[1] <= 150 && colourArray[2] >= 140)//blue
   {
     move(3, 255);
@@ -234,10 +231,11 @@ void loop() {
   move(1,220);
   digitalWrite(power, HIGH);
   left_sensor = MePort.aRead1();
-  //Serial.print(left_sensor);
-  //Serial.print(" ");
-  //Serial.println(right_sensor);
+  Serial.print(left_sensor);
+  Serial.print(" ");
   right_sensor = MePort.aRead2();
+  Serial.println(right_sensor);
+  //right_sensor = MePort.aRead2();
   
   if (left_sensor <= 563) {
   move(4, 255);
