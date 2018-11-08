@@ -1,4 +1,3 @@
-#include "MeMCore.h"
 #define PORT_1 4
 #include <Arduino.h>
 #include <Wire.h>
