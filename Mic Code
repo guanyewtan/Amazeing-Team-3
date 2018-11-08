@@ -34,11 +34,19 @@ Serial.println(micHigh);
     //left turn 
     move(3, 255);
     delay(5)
-  } else {
+  } 
+  
+  if ( micLow < micHigh) {
      //right turn
      move(4, 255);
      delay(5)
     }
+    
+  if (micLow == micHigh) {
+  move(4,255);
+  delay(500);
+  move(4, 255);
+}
 }
 
 
