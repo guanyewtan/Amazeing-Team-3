@@ -6,11 +6,31 @@
 #define TIMEOUT 30000
 #define WAITING_TIME 1000
 #define ULTRASONIC 10
-#include <MeMCore.h>
+#include <MePort.h>
+#include <MeDCMotor.h>
+#include <MeBuzzer.h>
+#include <MeLineFollower.h>
+#include <MeRGBLed.h>
+#include <MeLightSensor.h>
 #define power 11
+#define TIME 500
+#define LDRWait 10
+#define K 0.249267
+MeRGBLed rgbled_7(7, 7==7?2:4);
+MeLightSensor lightsensor_6(6);
+int red;
+int green;
+int blue;
+
+//floats to hold colour arrays
+float colourArray[] = {0,0,0};
+float whiteArray[] = {0,0,0};
+float blackArray[] = {0,0,0};
+float greyDiff[] = {0,0,0};
 
 MeDCMotor motor_9(9);
-MeDCMotor motor_10(10);    
+MeDCMotor motor_10(10);   
+MeBuzzer buzzer; 
 
 void move(int direction, int speed)
 {
@@ -40,10 +60,79 @@ MePort MePort(PORT_1);
 void setup() {
   Serial.begin(9600);
   pinMode(power, INPUT);
+  setBalance();
+  buzzer.tone (500, 1000);
 }
 
 MeLineFollower linefollower_1(1);
+int getAvgReading(int times){      
+//find the average reading for the requested number of times of scanning LDR
+  int reading;
+  int total =0;
+//take the reading as many times as requested and add them up
+  for(int i = 0;i < times;i++){
+     reading = lightsensor_6.read() * K;
+     total = reading + total;
+     delay(LDRWait);
+  }
+//calculate the average and return it
+  return total/times;
+}
+void setBalance(){
+//set white balance
+  Serial.println("Put White Sample For Calibration ...");
+  delay(5000);     //delay for five seconds for getting sample ready
+     buzzer.tone(123, 1000);
+     rgbled_7.setColor(0,255,0,0);
+     rgbled_7.show();
+     delay(1000);
+     whiteArray[0] = getAvgReading(5);
+     
+     rgbled_7.setColor(0,0,255,0);
+     rgbled_7.show();// green
+     delay(1000);
+     whiteArray[1] = getAvgReading(5);
+     
+     rgbled_7.setColor(0,0,0,255);
+     rgbled_7.show();// blue
+     delay(1000);
+     whiteArray[2] = getAvgReading(5);
+  
+//done scanning white, time for the black sample.
 
+//set black balance
+  Serial.println("Put Black Sample For Calibration ...");
+    delay(5000);     //delay for five seconds for getting sample ready 
+//go through one colour at a time, set the minimum reading for red, green and blue to the black array
+     buzzer.tone(123, 1000);
+     rgbled_7.setColor(0,255,0,0);
+     rgbled_7.show();
+     delay(1000);
+     blackArray[0] = getAvgReading(5);
+     
+     rgbled_7.setColor(0,0,255,0);
+     rgbled_7.show();// green
+     delay(1000);
+     blackArray[1] = getAvgReading(5);
+     
+     rgbled_7.setColor(0,0,0,255);
+     rgbled_7.show();// blue
+     delay(1000);
+     blackArray[2] = getAvgReading(5);
+     
+      
+//the differnce between the maximum and the minimum gives the range
+     for(int i = 0; i <= 2; i += 1)
+     {
+       greyDiff[i] = whiteArray[i] - blackArray[i];
+       Serial.print("black ");
+       Serial.println(blackArray[i]);
+       Serial.print("white ");
+       Serial.println(whiteArray[i]);
+       Serial.print("grey ");
+       Serial.println(greyDiff[i]);}
+     
+}
 void loop() {
   pinMode(ULTRASONIC, OUTPUT);
 
@@ -57,19 +146,88 @@ void loop() {
 
   long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
   long distance = ((duration * 343)/20000);
-  Serial.println(distance);
+  //Serial.println(distance);
   
   /*if (distance < 6)//use mbot ultrasound to detect a wall and slow down
   {
-    move(1,100);
+    move(1,150);
   }*/
- if ((linefollower_1.readSensors())!=( 3 ))//check for blackline
+  if ((linefollower_1.readSensors())!=( 3 ))//check for blackline
   {
-    move(1,0);
+   move(1,0);
     //delay(103571);
+    //LDR
+    red = 0;
+  blue = 0;
+  green = 0;
+  rgbled_7.setColor(0,255,0,0);
+  rgbled_7.show();// red
+  delay(TIME);
+  colourArray[0] = getAvgReading(5);
+  colourArray[0] = (colourArray[0] - blackArray[0])/(greyDiff[0])*255;
+  
+  rgbled_7.setColor(0,0,255,0);
+  rgbled_7.show();// green
+  delay(TIME);
+  colourArray[1] = getAvgReading(5);
+  colourArray[1] = (colourArray[1] - blackArray[1])/(greyDiff[1])*255;
+  
+  rgbled_7.setColor(0,0,0,255);
+  rgbled_7.show();// blue
+  delay(TIME);
+  colourArray[2] = getAvgReading(5);
+  colourArray[2] = (colourArray[2] - blackArray[2])/(greyDiff[2])*255;
+  
+  rgbled_7.setColor(0,0,0,0);
+  rgbled_7.show();
+  for(int i = 0; i <= 2; i ++)
+  {
+    Serial.print(colourArray[i]);
+    Serial.print(" ");
   }
-  else {
- // move(1,255);
+  Serial.println("");
+  //}
+  /*Serial.print(red);
+  Serial.print(", ");
+  Serial.print(green);
+  Serial.print(", ");
+  Serial.println(blue);*/
+  if (colourArray[0] >= 180 && colourArray[1] <= 100 && colourArray[2] <= 100)//red >= 150 && blue <= 35 && green <= 35)//red
+  {
+      move(4, 255);
+      delay(500);
+      move(1,255);
+    
+      
+  } else if (colourArray[0] >= 100 && colourArray[1] <= 180 && colourArray[2] <= 110)// green
+  {
+    move(3, 255);
+    delay(800);
+  } else if (colourArray[0] >= 220 && colourArray[1] >= 220 && colourArray[2] >= 220)//white
+  {
+    move(3, 255);//180 degree turn
+  } else if (colourArray[0] >= 100 && colourArray[1] <= 175 && colourArray[2] <= 210)//blue
+  {
+    move(3, 255);
+    delay(100);
+    move(1, 255);
+    delay(500);
+    move(3,255);
+    delay(100);
+    move (1,255);
+  } else if (colourArray[0] <= 10 && colourArray[1] <= 10 && colourArray[2] <= 10) {
+    //play some tune finish
+  } else {//orange
+    move(4, 255);
+    delay(100);
+    move(1, 255);
+    delay(500);
+    move(4,255);
+    delay(100);
+    move (1,255);
+  } 
+  }else {
+  move(1,220);
   digitalWrite(power, HIGH);
   left_sensor = MePort.aRead1();
   Serial.print(left_sensor);
@@ -77,15 +235,15 @@ void loop() {
   Serial.println(right_sensor);
   right_sensor = MePort.aRead2();
   
-  if (left_sensor <= 780) {
+  if (left_sensor <= 563) {
   move(4, 255);
   delay(5);
-  move(1, 255);
+  //move(1, 255);
   }
-  if (right_sensor <= 850) {
+  if (right_sensor <= 600) {
    move(3, 255);
    delay(5);
-   move(1, 255);
+   //move(1, 255);
   }
  
 
