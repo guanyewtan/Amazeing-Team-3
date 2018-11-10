@@ -1,13 +1,72 @@
-#include <Arduino.h>
-#include <Wire.h>
-#include <SoftwareSerial.h>
-#define TIMEOUT 30000
-#define WAITING_TIME 1000
+#define power 11
+#define LDRWait 10
+#define LIGHTWait 70
 #define ULTRASONIC 10
-#include <MeMCore.h>
+#define TURNLEFT
+#define TURNRIGHT
+#define UTURN
 
+MeRGBLed rgbled_7(7, 7==7?2:4);
+MeLightSensor lightsensor_6(6);
+MeLineFollower linefollower_1(1);
 MeDCMotor motor_9(9);
-MeDCMotor motor_10(10);    
+MeDCMotor motor_10(10);   
+MeBuzzer buzzer; 
+MePort MePort(PORT_1);
+
+//COLOUR Component
+
+//floats to hold colour arrays
+float colourArray[] = {0, 0, 0};
+float calibration[] = {108, 103, 104};
+long colour[3][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}}; 
+
+//Function to set colourArray
+int getAvgReading(int times)
+{      
+  //find the average reading for the requested number of times of scanning LDR
+  int reading;
+  int total = 0;
+  delay(40);
+  //take the reading as many times as requested and add them up
+  for(int i = 0; i < times; i++)
+  {
+     reading = lightsensor_6.read() * (255/1023);
+     total = reading + total;
+     delay(LDRWait);
+  }
+  //calculate the average and return it
+  return total/times;
+}
+
+int theColourIs(int colourArray[])
+{
+  //Red
+  if (colourArray[0] >= 200 && colourArray[1] <= 100 && colourArray[2] <= 100)
+  {
+    return 1;
+  } 
+  //Green
+  else if (colourArray[0] <= 110 && colourArray[1] >= 130 && colourArray[2] <= 100)
+  {
+    return 2;
+  } 
+  //Blue
+  else if (colourArray[0] <= 100 && colourArray[1] <= 150 && colourArray[2] >= 140)
+  {
+    return 3;
+  } 
+  //White
+  else if (colourArray[0] >= 220 && colourArray[1] >= 220 && colourArray[2] >= 220)
+  {
+    return 4;
+  } 
+  //Black
+  else if (colourArray[0] <= 10 && colourArray[1] <= 10 && colourArray[2] <= 10) 
+  {
+    return 5;
+  }
+}
 
 void move(int direction, int speed)
 {
@@ -29,38 +88,125 @@ void move(int direction, int speed)
       motor_9.run((9)==M1?-(leftSpeed):(leftSpeed));
       motor_10.run((10)==M1?-(rightSpeed):(rightSpeed));
 }
-double angle_rad = PI/180.0;
-double angle_deg = 180.0/PI;     
-       
 
-void setup() {
-  // Set up serial communication
+
+void setup() 
+{
   Serial.begin(9600);
+  pinMode(power, INPUT);
+  buzzer.tone (500, 1000);
 }
 
-void loop() {
-  // The following code runs repeatedly:
-  pinMode(ULTRASONIC, OUTPUT);
-
-  digitalWrite(ULTRASONIC, LOW);
-  delayMicroseconds(2);
-  digitalWrite(ULTRASONIC, HIGH);
-  delayMicroseconds(2);
-  digitalWrite(ULTRASONIC, LOW);
-
-  pinMode(ULTRASONIC, INPUT);
-
-  long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
-  long distance = (duration * 343)/(20000);
-  Serial.println(distance);
-
-  if (distance < 10)
+void loop() 
+{
+  //Check for blackline
+  if ((linefollower_1.readSensors())==( 0 ))
   {
-    move(3,255);
-    delay(500);
-  }
-  else {
-    move(1,255);
-  }
-}
+    move(1,0);
 
+    //Sound Challenge
+    if (there is sound)
+    {
+    /* INSERT MIC CODE HERE
+    * Also insert condition:
+    * If there is sound, run the sound challenge, else run color challenge
+    */
+    }
+
+    //Color Challenge
+    else
+    {
+      //Set colourArray
+      for (long i = 0; i < 3; i += 1)
+      {
+        rgbled_7.setColor(0, colour[i][0], colour[i][1], colour[i][2]);
+        rgbled_7.show();
+        delay(LIGHTWait);
+        colourArray[i] = getAvgReading(3) - calibration[i];      
+      }
+
+      rgbled_7.setColor(0,0,0,0);
+      rgbled_7.show();
+
+      //Red
+      if (theColouris(colourArray) == 1)
+      {
+        move(3, 255);
+        delay(TURN_LEFT);
+        move(1, 255);
+      }
+      
+      //Green
+      if (theColouris(colourArray) == 2)
+      {
+        move(4, 255);
+        delay(TURN_RIGHT);
+        move(1, 255);
+      }
+      
+      //Blue
+      if (theColouris(colourArray) == 3)
+      {
+        //Activate Ultrasonic
+        pinMode(ULTRASONIC, OUTPUT);
+        digitalWrite(ULTRASONIC, LOW);
+        delayMicroseconds(2);
+        digitalWrite(ULTRASONIC, HIGH);
+        delayMicroseconds(2);
+        digitalWrite(ULTRASONIC, LOW);
+        pinMode(ULTRASONIC, INPUT);
+        long duration = pulseIn(ULTRASONIC, HIGH, 30000);
+        int distance = ((duration * 343)/20000);
+
+        move(3, 255);
+        delay(TURN_LEFT);
+        move(1, 255);
+        if (distance <= 8)
+        {
+          move(1,0);
+          delay(50);
+          move(3, 255);
+          delay(TURN_LEFT);
+          move(1, 255);
+        }
+      }
+
+      //White
+      if (theColouris(colourArray) == 4)
+      {
+        move(4, 255);
+        delay(UTURN);
+        move(1, 255);
+      }
+
+      //Black
+      if (theColouris(colourArray) == 5)
+      {
+        //END OF MISSION
+      }
+    }
+  }
+  
+  else 
+  {
+    move(1,220);
+    digitalWrite(power, HIGH);
+    int left_sensor = MePort.aRead1();
+    Serial.print(left_sensor);
+    Serial.print(" ");
+    int right_sensor = MePort.aRead2();
+    Serial.println(right_sensor);
+  
+    if (left_sensor <= 563) 
+    {
+      move(4, 255);
+      delay(5);
+      move(1, 220);
+    }
+  
+    if (right_sensor <= 600) 
+    {
+      move(3, 255);
+      delay(5);
+    }  
+}
