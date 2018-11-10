@@ -18,7 +18,9 @@ MePort MePort(PORT_1);
 
 //floats to hold colour arrays
 float colourArray[] = {0, 0, 0};
-float calibration[] = {108, 103, 104};
+float whiteArray[] = {184,152,172};
+float blackArray[] = {55,44,50};
+float greyDiff[] = {129,108,122};
 long colour[3][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}}; 
 
 //Function to set colourArray
@@ -39,6 +41,7 @@ int getAvgReading(int times)
   return total/times;
 }
 
+//function to determine colour
 int theColourIs(int colourArray[])
 {
   //Red
@@ -68,25 +71,33 @@ int theColourIs(int colourArray[])
   }
 }
 
+
 void move(int direction, int speed)
 {
-      int leftSpeed = 0;
-      int rightSpeed = 0;
-      if(direction == 1){
-          leftSpeed = speed;
-          rightSpeed = speed;
-      }else if(direction == 2){
-          leftSpeed = -speed;
-          rightSpeed = -speed;
-      }else if(direction == 3){
-          leftSpeed = -speed;
-          rightSpeed = speed;
-      }else if(direction == 4){
-          leftSpeed = speed;
-          rightSpeed = -speed;
-      }
-      motor_9.run((9)==M1?-(leftSpeed):(leftSpeed));
-      motor_10.run((10)==M1?-(rightSpeed):(rightSpeed));
+  int leftSpeed = 0;
+  int rightSpeed = 0;
+  if(direction == 1)
+  {
+    leftSpeed = speed;
+    rightSpeed = speed;
+  }
+  else if(direction == 2)
+  {
+    leftSpeed = -speed;
+    rightSpeed = -speed;
+  }
+  else if(direction == 3)
+  {
+    leftSpeed = -speed;
+    rightSpeed = speed;
+  }
+  else if(direction == 4)
+  {
+    leftSpeed = speed;
+    rightSpeed = -speed;
+  }
+    motor_9.run((9)==M1?-(leftSpeed):(leftSpeed));
+    motor_10.run((10)==M1?-(rightSpeed):(rightSpeed));
 }
 
 
@@ -105,7 +116,7 @@ void loop()
     move(1,0);
 
     //Sound Challenge
-    if (there is sound)
+    if (THERE IS SOUND)
     {
     /* INSERT MIC CODE HERE
     * Also insert condition:
@@ -122,10 +133,10 @@ void loop()
         rgbled_7.setColor(0, colour[i][0], colour[i][1], colour[i][2]);
         rgbled_7.show();
         delay(LIGHTWait);
-        colourArray[i] = getAvgReading(3) - calibration[i];      
+        colourArray[i] = ((getAvgReading(3) - blackArray[i]) / greyDiff[i]) * 255;      
       }
 
-      rgbled_7.setColor(0,0,0,0);
+      rgbled_7.setColor(0, 0, 0, 0);
       rgbled_7.show();
 
       //Red
@@ -183,30 +194,110 @@ void loop()
       if (theColouris(colourArray) == 5)
       {
         //END OF MISSION
+        celebration;
+        
+        
       }
     }
   }
   
   else 
   {
-    move(1,220);
+    move(1,240);
     digitalWrite(power, HIGH);
     int left_sensor = MePort.aRead1();
+    int right_sensor = MePort.aRead2();
     Serial.print(left_sensor);
     Serial.print(" ");
-    int right_sensor = MePort.aRead2();
     Serial.println(right_sensor);
   
     if (left_sensor <= 563) 
     {
       move(4, 255);
       delay(5);
-      move(1, 220);
+      move(1, 240);
     }
   
     if (right_sensor <= 600) 
     {
       move(3, 255);
       delay(5);
+      move(1, 240);
     }  
+}
+
+void celebration()
+{
+  for (int i = 0; i < 4; i += 1)
+  {
+    rgbled_7.setColor(0, 255, 0, 0);
+    rgbled_7.show();
+    buzzer.tone(147, 500);
+    delay(20);
+    buzzer.tone(147, 250);
+    delay(20);
+    buzzer.tone(147, 250);
+    delay(20);
+    rgbled_7.setColor(0, 0, 255, 0);
+    rgbled_7.show();
+    buzzer.tone(294, 500);
+    delay(20);
+    buzzer.tone(147, 250);
+    delay(20);
+    buzzer.tone(262, 500);
+    rgbled_7.setColor(0, 0, 0, 255);
+    rgbled_7.show();
+    delay(20);
+    buzzer.tone(147, 250);
+    delay(20);
+    buzzer.tone(220, 500);
+    delay(20);
+    rgbled_7.setColor(0, 255, 255, 0);
+    rgbled_7.show();
+    buzzer.tone(196, 250);
+    delay(20);
+    buzzer.tone(220, 250);
+    delay(20);
+    buzzer.tone(196, 250);
+    delay(20);
+    buzzer.tone(175, 250);
+    delay(20);
+    rgbled_7.setColor(0, 255, 0, 0);
+    rgbled_7.show();
+    buzzer.tone(147, 500);
+    delay(20);
+    buzzer.tone(147, 250);
+    delay(20);
+    buzzer.tone(147, 250);
+    delay(20);
+    rgbled_7.setColor(0, 0, 255, 0);
+    rgbled_7.show();
+    buzzer.tone(294, 500);
+    delay(20);
+    buzzer.tone(147, 250);
+    delay(20);
+    buzzer.tone(262, 500);
+    rgbled_7.setColor(0, 0, 0, 255);
+    rgbled_7.show();
+    delay(20);
+    buzzer.tone(147, 250);
+    delay(20);
+    buzzer.tone(220, 500);
+    delay(20);
+    rgbled_7.setColor(0, 255, 255, 0);
+    rgbled_7.show();
+    buzzer.tone(175, 250);
+    delay(20);
+    buzzer.tone(220, 250);
+    delay(20);
+    buzzer.tone(262, 250);
+    delay(20);
+    buzzer.tone(294, 250);
+    delay(20);
+  }
+
+  delay(1000);
+  rgbled_7.setColor(0, 255, 255, 255);
+  rgbled_7.show();
+  buzzer.tone(123, 3000);
 }
