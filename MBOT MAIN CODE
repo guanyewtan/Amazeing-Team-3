@@ -11,8 +11,8 @@
 #define TURN_LEFT 260
 #define TURN_RIGHT 250
 #define UTURN 465
-#define LEFT_SENSOR 563
-#define RIGHT_SENSOR 600
+#define LEFT_SENSOR 700
+#define RIGHT_SENSOR 700
 #define K 0.249267
 
 MeRGBLed rgbled_7(7, 7==7?2:4);
@@ -261,7 +261,7 @@ void loop()
         Serial.println("ACTIVATE PLSSSS");
         //Activate Ultrasonic
         int distance = 100;
-        while (distance >= 8)
+        while (distance >= 14)
         {
           pinMode(ULTRASONIC, OUTPUT);
           digitalWrite(ULTRASONIC, LOW);
@@ -277,12 +277,14 @@ void loop()
         }
         rgbled_7.setColor(0, 0, 0, 255);
         rgbled_7.show();
+        move(1,0);
+        delay(50);
         move(4, 255);
         delay(TURN_RIGHT);
         move(1, 255);
         rgbled_7.setColor(0, 0, 0, 0);
         rgbled_7.show();
-      }
+        }
 
       //White
       if (theColouris(colourArray) == 4)
