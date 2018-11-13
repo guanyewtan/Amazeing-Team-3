@@ -1,5 +1,4 @@
 
-
 #define PORT 3
 #include <Arduino.h>
 #include <Wire.h>
@@ -24,16 +23,17 @@ void loop() {
 
 digitalWrite(power, HIGH);
 //voltage from LOW freq
-micLow = MicPort.aRead2();
+micLow = MicPort.aRead1();
 Serial.println(micLow);
 
 //voltage from HIGH freq
-micHigh = MicPort.aRead1();
+micHigh = MicPort.aRead2();
 Serial.println(micHigh);
 
   if ( micLow > micHigh ) {
     //left turn 
     //move(3, 255);
+
     Serial.println("300hz louder");
     delay(1000);
   } 
