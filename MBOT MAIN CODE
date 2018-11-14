@@ -8,9 +8,9 @@
 #define LDRWait 10
 #define LIGHTWait 70
 #define ULTRASONIC 10
-#define TURN_LEFT 260
-#define TURN_RIGHT 250
-#define UTURN 465
+#define TURN_LEFT 240
+#define TURN_RIGHT 240
+#define UTURN 450
 #define LEFT_SENSOR 700
 #define RIGHT_SENSOR 700
 #define K 0.249267
@@ -109,9 +109,9 @@ void celebration()
 
 //floats to hold colour arrays
 float colourArray[] = {0, 0, 0};
-float whiteArray[] = {184,152,172};
-float blackArray[] = {55,44,50};
-float greyDiff[] = {129,108,122};
+float whiteArray[] = {230, 189, 220};
+float blackArray[] = {123, 90, 113};
+float greyDiff[] = {107, 99, 107};
 long colour[3][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}}; 
 
 //Function to set colourArray
@@ -137,12 +137,12 @@ int getAvgReading(int times)
 int theColouris(float colourArray[])
 {
   //White
-  if (colourArray[0] >= 210 && colourArray[1] >= 210 && colourArray[2] >= 210)
+  if (colourArray[0] >= 200 && colourArray[1] >= 200 && colourArray[2] >= 200)
   {
     return 4;
   } 
   //Black
-  else if (colourArray[0] <= 50 && colourArray[1] <= 50 && colourArray[2] <= 50) 
+  else if (colourArray[0] <= 75 && colourArray[1] <= 75 && colourArray[2] <= 75) 
   {
     return 5;
   }
@@ -356,7 +356,7 @@ void loop()
         rgbled_7.setColor(0, 0, 0, 255);
         rgbled_7.show();
         move(1,0);
-        delay(50);
+        delay(200);
         move(4, 255);
         delay(TURN_RIGHT);
         move(1, 255);
